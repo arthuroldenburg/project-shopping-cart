@@ -3,6 +3,9 @@
 // commitao da massa
 // Fique a vontade para modificar o código já escrito e criar suas próprias funções!
 
+const { fetchItem } = require('./helpers/fetchItem');
+const { fetchProducts } = require('./helpers/fetchProducts');
+
 /**
  * Função responsável por criar e retornar o elemento de imagem do produto.
  * @param {string} imageSource - URL da imagem.
@@ -72,4 +75,26 @@ const createCartItemElement = ({ id, title, price }) => {
   return li;
 };
 
-window.onload = () => { };
+const listCartItem = async (item) => {
+  const cartItem = await fetchItem(item);
+  const itemCart = createCartItemElement({
+    sku: cartItem.id,
+    name: cartItem.title,
+    salePrice: cartItem.price,
+  });
+  itemCart.appendChild();
+};
+
+const listProducts = async () => {
+  const list = await fetchProducts();
+  const item = document.querySelector('.items');
+  list.forEach(({ id, title, price }) => {
+    const createObjPrice = createProductItemElement({ id, title, price });
+    item.append(createObjPrice);
+  });
+};
+
+window.onload = () => {
+  listProducts();
+  listCartItem();
+};

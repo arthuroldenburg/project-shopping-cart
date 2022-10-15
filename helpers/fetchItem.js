@@ -1,7 +1,6 @@
 const fetchItem = async (item) => {
   // seu código aqui
-  const url = `https://api.mercadolibre.com/items/${item}`;
-  const result = await fetch(url);
+  const result = await fetch(`https://api.mercadolibre.com/items/${item}`);
   const data = await result.json();
   return data;
 };
