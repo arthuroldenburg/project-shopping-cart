@@ -133,7 +133,7 @@ const removeItems = () => {
   });
 };
 
-const praRodarAbaixo = (lista) => {
+const toRun = (lista) => {
   lista.remove();
         const getHTML = getItems.innerHTML;
         if (getHTML.length > 0) {
@@ -150,7 +150,7 @@ const removeItens = () => {
   if (getList.length > 0) {
     getList.forEach((lista) => {
       lista.addEventListener('click', () => {
-        praRodarAbaixo(lista);
+        toRun(lista);
       });
     });
   }
