@@ -74,7 +74,8 @@ const createCartItemElement = ({ id, title, price }) => {
   li.addEventListener('click', cartItemClickListener);
   return li;
 };
-const listCart = async () => {
+// listagem
+const listCart = async () => { 
   const list = await fetchProducts();
   const itens = document.querySelector('.items');
   list.forEach(({ id, title, price }) => {
@@ -85,6 +86,28 @@ const listCart = async () => {
   });
 };
 
+const listCartItens = async (ids) => {
+  const list = await fetchItem(ids);
+  const { id, title, price } = list;
+  const createObj = {
+       id, title, price,
+  };
+  console.log(createObj);
+};
+
+// listagem2
+const listProduct = async () => {
+  await fetchProducts();
+  const getBtn = document.querySelectorAll('.item__add');
+  getBtn.forEach((buttons) => {
+    buttons.addEventListener('click', (ev) => {
+      const getId = ev.target.parentNode;
+      listCartItens(getId.firstChild.innerHTML);
+    });
+  });
+};
+
 window.onload = () => { 
   listCart();
+  listProduct();
 };
