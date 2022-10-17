@@ -4,8 +4,6 @@ const fetchProducts = async () => {
   return data.results;
 };
 
-fetchProducts();
-
 if (typeof module !== 'undefined') {
   module.exports = {
     fetchProducts,

@@ -3,28 +3,15 @@
 // commitao da massa
 // Fique a vontade para modificar o código já escrito e criar suas próprias funções!
 
-const { fetchItem } = require('./helpers/fetchItem');
-const { fetchProducts } = require('./helpers/fetchProducts');
-const saveCartItems = require('./helpers/saveCartItems');
-
 /**
  * Função responsável por criar e retornar o elemento de imagem do produto.
  * @param {string} imageSource - URL da imagem.
  * @returns {Element} Elemento de imagem do produto.
  */
 
-const getItens = document.querySelector('.cart__items');
+ const getItems = document.querySelector('.cart__items');
 
-const sumAll = () => {
-  const getSum = document.querySelector('.total-price');
-  const getCollection = getItems.children;
-  const transformaArray = Array.from(getCollection);
-  const keepValues = [];
-  transformaArray.forEach((item) => keepValues.push(item.innerHTML.split('$')[1]));
-
-  const total = keepValues.reduce((accumulator, value) => accumulator + Number(value), 0);
-  getSum.innerHTML = total;
-};
+ const loading = document.querySelector('.carregando');
 
 const createProductImageElement = (imageSource) => {
   const img = document.createElement('img');
@@ -56,9 +43,31 @@ const createCustomElement = (element, className, innerText) => {
  * @returns {Element} Elemento de produto.
  */
 
- const cartItemClickListener = ({ target }) => {
+ const load = () => {
+  const generateSpan = document.createElement('span');
+  generateSpan.className = 'loading';
+  generateSpan.innerText = 'carregando...';
+  loading.appendChild(generateSpan);
+};
+
+const removeLoading = () => {
+  loading.innerHTML = '';
+};
+
+ const getSum = () => {
+  const sum = document.querySelector('.total-price');
+  const getCollection = getItems.children;
+  const transformaArray = Array.from(getCollection);
+  const keepValues = [];
+  transformaArray.forEach((item) => keepValues.push(item.innerHTML.split('$')[1]));
+
+  const total = keepValues.reduce((accumulator, value) => accumulator + Number(value), 0);
+  sum.innerHTML = total;
+};
+
+const cartItemClickListener = ({ target }) => {
   target.remove();
-  sumAll();
+  getSum();
 };
 
 const createCartItemElement = ({ id, title, price }) => {
@@ -69,17 +78,21 @@ const createCartItemElement = ({ id, title, price }) => {
   return li;
 };
 
-const cartItems = async ({ target }) => {
-  const getId = target.parentNode.firstChild.innerHTML;
-  const getAllId = await fetchItem(getId);
-  const { id, title, price } = getAllId;
-  const doObj = {
-    id, title, price,
+const listCart = async ({ target }) => {
+  load();
+  const getIds = target.parentNode.firstChild.innerText;
+  const getAllIds = await fetchItem(getIds);
+  const { id, title, price } = getAllIds;
+  const obj = {
+    id, 
+    title, 
+    price,
   };
-  getItems.appendChild(createCartItemElement(doObj));
+  getItems.appendChild(createCartItemElement(obj));
   const getHtml = getItems.innerHTML;
   saveCartItems(getHtml);
-  sumAll();
+  getSum();
+  removeLoading();
 };
 
 const createProductItemElement = ({ id, title, thumbnail }) => {
@@ -92,7 +105,7 @@ const createProductItemElement = ({ id, title, thumbnail }) => {
   section.appendChild(createCustomElement('button', 'item__add', 'Adicionar ao carrinho!'));
 
   const getBtn = document.querySelectorAll('.item__add');
-  getBtn.forEach((e) => e.addEventListener('click', cartItems));
+  getBtn.forEach((e) => e.addEventListener('click', listCart));
 
   return section;
 };
@@ -102,8 +115,7 @@ const createProductItemElement = ({ id, title, thumbnail }) => {
  * @param {Element} product - Elemento do produto.
  * @returns {string} ID do produto.
  */
-
-const getIdFromProductItem = (product) => product.querySelector('span.id').innerText;
+// const getIdFromProductItem = (product) => product.querySelector('span.id').innerText;
 
 /**
  * Função responsável por criar e retornar um item do carrinho.
@@ -114,52 +126,87 @@ const getIdFromProductItem = (product) => product.querySelector('span.id').inner
  * @returns {Element} Elemento de um item do carrinho.
  */
 
-const listCart = async () => { 
-  const list = await fetchProducts();
-  const itens = document.querySelector('.items');
-  list.forEach(({ id, title, price }) => {
-    const makePriceObj = createProductItemElement({
-      id, title, price,
-    });
-    itens.append(makePriceObj);
+ const list = async () => {
+  const roster = await fetchProducts();
+  const items = document.querySelector('.items');
+  roster.forEach(({ id, title, price }) => {
+    const makePriceObj = createProductItemElement({ id, title, price });
+    items.append(makePriceObj);
   });
+  removeLoading();
 };
 
-const removeItems = () => {
-  const getButtonClear = document.querySelector('.empty-cart');
-  getButtonClear.addEventListener('click', () => {
+const removeItens = () => {
+  const getButtonnClear = document.querySelector('.empty-cart');
+  getButtonnClear.addEventListener('click', () => {
     getItems.innerHTML = '';
     localStorage.clear();
   });
 };
 
-const toRun = (lista) => {
-  lista.remove();
-        const getHTML = getItems.innerHTML;
-        if (getHTML.length > 0) {
-        saveCartItems(getHTML);
-        sumAll();
-      } else {
-        localStorage.clear();
-        sumAll();
-      } 
+const run = (roster) => {
+  roster.remove();
+  const getHtml = getItems.innerHTML;
+  if (getHtml.length > 0) {
+    saveCartItems(getHtml);
+    getSum();
+  } else {
+    localStorage.clear();
+    getSum();
+  }
 };
 
-const removeItens = () => {
+const removeItems = () => {
   const getList = document.querySelectorAll('.cart__item');
   if (getList.length > 0) {
-    getList.forEach((lista) => {
-      lista.addEventListener('click', () => {
-        toRun(lista);
+    getList.forEach((roster) => {
+      roster.addEventListener('click', () => {
+        run(roster);
       });
     });
   }
 };
 
-window.onload = () => { 
-  listCart();
-  const recoverList = getSavedCartItems(); 
-  getItens.innerHTML = recoverList;
-  removeItems();
+window.onload = () => {
+  load();
+  list();
+  const recoverList = getSavedCartItems();
+  document.querySelector('.cart__items').innerHTML = recoverList;
   removeItens();
+  removeItems();
+  getSum();
 };
+
+// const listCart = async (ids) => {
+//   const list = await fetchItem(ids);
+//   const { id, title, price } = list;
+//   const createObj = {
+//        id, title, price,
+//   };
+//   console.log(createObj);
+// };
+
+// const listCartItem = async () => {
+//   await fetchProducts();
+//   const getButton = document.querySelectorAll('.item__add');
+//   getButton.forEach((buttons) => {
+//     buttons.addEventListener('click', (ev) => {
+//       const getId = ev.target.parentNode;
+//       listCart(getId.firstChild.innerHTML);
+//     });
+//   });
+// };
+
+// const listProducts = async () => {
+//   const list = await fetchProducts();
+//   const item = document.querySelector('.items');
+//   list.forEach(({ id, title, price }) => {
+//     const createObjPrice = createProductItemElement({ id, title, price });
+//     item.append(createObjPrice);
+//   });
+// };
+
+// window.onload = () => {
+//   listProducts();
+//   listCartItem();
+// };
