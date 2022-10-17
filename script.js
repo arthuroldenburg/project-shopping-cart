@@ -40,6 +40,30 @@ const createCustomElement = (element, className, innerText) => {
  * @param {string} product.thumbnail - URL da imagem do produto.
  * @returns {Element} Elemento de produto.
  */
+
+ const cartItemClickListener = ({ target }) => {
+  target.remove();
+};
+
+const createCartItemElement = ({ id, title, price }) => {
+  const li = document.createElement('li');
+  li.className = 'cart__item';
+  li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
+  li.addEventListener('click', cartItemClickListener);
+  return li;
+};
+
+const cartItems = async ({ target }) => {
+  const getItems = document.querySelector('.cart__items');
+  const getId = target.parentNode.firstChild.innerHTML;
+  const getAllId = await fetchItem(getId);
+  const { id, title, price } = getAllId;
+  const doObj = {
+    id, title, price,
+  };
+  getItems.appendChild(createCartItemElement(doObj));
+};
+
 const createProductItemElement = ({ id, title, thumbnail }) => {
   const section = document.createElement('section');
   section.className = 'item';
@@ -49,6 +73,9 @@ const createProductItemElement = ({ id, title, thumbnail }) => {
   section.appendChild(createProductImageElement(thumbnail));
   section.appendChild(createCustomElement('button', 'item__add', 'Adicionar ao carrinho!'));
 
+  const getBtn = document.querySelectorAll('.item__add');
+  getBtn.forEach((e) => e.addEventListener('click', cartItems));
+
   return section;
 };
 
@@ -57,6 +84,7 @@ const createProductItemElement = ({ id, title, thumbnail }) => {
  * @param {Element} product - Elemento do produto.
  * @returns {string} ID do produto.
  */
+
 const getIdFromProductItem = (product) => product.querySelector('span.id').innerText;
 
 /**
@@ -67,14 +95,7 @@ const getIdFromProductItem = (product) => product.querySelector('span.id').inner
  * @param {string} product.price - Preço do produto.
  * @returns {Element} Elemento de um item do carrinho.
  */
-const createCartItemElement = ({ id, title, price }) => {
-  const li = document.createElement('li');
-  li.className = 'cart__item';
-  li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
-  li.addEventListener('click', cartItemClickListener);
-  return li;
-};
-// listagem
+
 const listCart = async () => { 
   const list = await fetchProducts();
   const itens = document.querySelector('.items');
@@ -87,27 +108,16 @@ const listCart = async () => {
 };
 
 const listCartItens = async (ids) => {
+  await fetchProducts();
+  const itemsCart = document.querySelector('.cart__items');
   const list = await fetchItem(ids);
   const { id, title, price } = list;
   const createObj = {
        id, title, price,
   };
-  console.log(createObj);
-};
-
-// listagem2
-const listProduct = async () => {
-  await fetchProducts();
-  const getBtn = document.querySelectorAll('.item__add');
-  getBtn.forEach((buttons) => {
-    buttons.addEventListener('click', (ev) => {
-      const getId = ev.target.parentNode;
-      listCartItens(getId.firstChild.innerHTML);
-    });
-  });
+  itemsCart.appendChild(createObj);
 };
 
 window.onload = () => { 
   listCart();
-  listProduct();
 };
