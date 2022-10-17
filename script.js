@@ -156,16 +156,6 @@ const removeItens = () => {
   }
 };
 
-const listCartItens = async (ids) => {
-  await fetchProducts();
-  const list = await fetchItem(ids);
-  const { id, title, price } = list;
-  const createObj = {
-       id, title, price,
-  };
-  itemsCart.appendChild(createObj);
-};
-
 window.onload = () => { 
   listCart();
   const recoverList = getSavedCartItems(); 
