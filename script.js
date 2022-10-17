@@ -11,6 +11,9 @@ const { fetchProducts } = require('./helpers/fetchProducts');
  * @param {string} imageSource - URL da imagem.
  * @returns {Element} Elemento de imagem do produto.
  */
+
+const getItens = document.querySelector('.cart__items');
+
 const createProductImageElement = (imageSource) => {
   const img = document.createElement('img');
   img.className = 'item__image';
@@ -54,7 +57,6 @@ const createCartItemElement = ({ id, title, price }) => {
 };
 
 const cartItems = async ({ target }) => {
-  const getItems = document.querySelector('.cart__items');
   const getId = target.parentNode.firstChild.innerHTML;
   const getAllId = await fetchItem(getId);
   const { id, title, price } = getAllId;
@@ -104,6 +106,14 @@ const listCart = async () => {
       id, title, price,
     });
     itens.append(makePriceObj);
+  });
+};
+
+const removeItems = () => {
+  const getButtonClear = document.querySelector('.empty-cart');
+  getButtonClear.addEventListener('click', () => {
+    getItems.innerHTML = '';
+    localStorage.clear();
   });
 };
 
