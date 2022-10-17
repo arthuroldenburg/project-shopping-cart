@@ -5,6 +5,7 @@
 
 const { fetchItem } = require('./helpers/fetchItem');
 const { fetchProducts } = require('./helpers/fetchProducts');
+const saveCartItems = require('./helpers/saveCartItems');
 
 /**
  * Função responsável por criar e retornar o elemento de imagem do produto.
@@ -13,6 +14,17 @@ const { fetchProducts } = require('./helpers/fetchProducts');
  */
 
 const getItens = document.querySelector('.cart__items');
+
+const sumAll = () => {
+  const getSum = document.querySelector('.total-price');
+  const getCollection = getItems.children;
+  const transformaArray = Array.from(getCollection);
+  const keepValues = [];
+  transformaArray.forEach((item) => keepValues.push(item.innerHTML.split('$')[1]));
+
+  const total = keepValues.reduce((accumulator, value) => accumulator + Number(value), 0);
+  getSum.innerHTML = total;
+};
 
 const createProductImageElement = (imageSource) => {
   const img = document.createElement('img');
@@ -46,6 +58,7 @@ const createCustomElement = (element, className, innerText) => {
 
  const cartItemClickListener = ({ target }) => {
   target.remove();
+  sumAll();
 };
 
 const createCartItemElement = ({ id, title, price }) => {
@@ -64,6 +77,9 @@ const cartItems = async ({ target }) => {
     id, title, price,
   };
   getItems.appendChild(createCartItemElement(doObj));
+  const getHtml = getItems.innerHTML;
+  saveCartItems(getHtml);
+  sumAll();
 };
 
 const createProductItemElement = ({ id, title, thumbnail }) => {
@@ -117,9 +133,31 @@ const removeItems = () => {
   });
 };
 
+const praRodarAbaixo = (lista) => {
+  lista.remove();
+        const getHTML = getItems.innerHTML;
+        if (getHTML.length > 0) {
+        saveCartItems(getHTML);
+        sumAll();
+      } else {
+        localStorage.clear();
+        sumAll();
+      } 
+};
+
+const removeItens = () => {
+  const getList = document.querySelectorAll('.cart__item');
+  if (getList.length > 0) {
+    getList.forEach((lista) => {
+      lista.addEventListener('click', () => {
+        praRodarAbaixo(lista);
+      });
+    });
+  }
+};
+
 const listCartItens = async (ids) => {
   await fetchProducts();
-  const itemsCart = document.querySelector('.cart__items');
   const list = await fetchItem(ids);
   const { id, title, price } = list;
   const createObj = {
@@ -130,4 +168,8 @@ const listCartItens = async (ids) => {
 
 window.onload = () => { 
   listCart();
+  const recoverList = getSavedCartItems(); 
+  getItens.innerHTML = recoverList;
+  removeItems();
+  removeItens();
 };
